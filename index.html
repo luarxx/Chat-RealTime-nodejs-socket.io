@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="/socket.io/socket.io.js"></script> <!-- Importando o socket.io -->
+    <script src="https://code.jquery.com/jquery-3.7.0.js"
+        integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
+    <title>Chat simples</title>
+</head>
+
+<body>
+    <header>
+        <form id="form" action="">
+            <input type="text" id="msg" autofocus autocomplete="off" placeholder="Digite uma mensagem">
+            <button type="submit">Enviar</button>
+        </form>
+    </header>
+
+    <ul id="mensagens">
+    </ul>
+
+    <div id="status"></div>
+
+    <script>
+        $(function () { // Quando a página carregar execute o código abaixo
+            const socket = io() // Criando uma constante para o socket.io
+            socket.nickname = '' // Criando uma variável para o nickname
+
+
+            $('form').submit(function (e) { // Quando o formulário for enviado execute o código abaixo
+                if (socket.nickname === "") { // Se o nickname for vazio
+                    socket.nickname = $('#msg').val() // Defina o nickname como o valor do campo de mensagem
+                    socket.emit('login', socket.nickname) // Enviando o nickname para o servidor com o nome 'login' e o valor
+
+                    $('#msg').keypress(function (e) { // Quando o usuário pressionar uma tecla no campo de mensagem execute o código abaixo
+                        socket.emit('status', `${socket.nickname} está digitando...`) // Enviando o nickname para o servidor com o nome 'digitando' e o valor
+                    })
+
+                    $('#msg').keyup(function (e) { // Quando o usuário soltar uma tecla no campo de mensagem execute o código abaixo
+                        socket.emit('status', '') // Enviando o nickname para o servidor com o nome 'digitando' e o valor vazio
+                    })
+
+                    socket.on('status', function (msg) { // Quando o servidor enviar uma mensagem com o nome 'status' execute o código abaixo
+                        $('#status').html(msg) // Adicionando a mensagem na div de status
+                    })
+                } else { // Se o nickname não for vazio
+                    socket.emit('chat msg', $('#msg').val()) // Enviando a mensagem para o servidor com o nome 'chat msg' e o valor
+                }
+
+                $('#msg').val('') // Limpando o campo de mensagem
+                return false // Retornando falso para não atualizar a página
+            })
+
+
+
+
+            socket.on("chat msg", function (msg) { // Quando o servidor enviar uma mensagem com o nome 'chat msg' execute o código abaixo
+                $('#mensagens').append($("<li>").text(msg)) // Adicionando a mensagem na lista de mensagens
+            })
+
+
+
+
+
+
+        })
+
+
+    </script>
+</body>
+
+</html>
