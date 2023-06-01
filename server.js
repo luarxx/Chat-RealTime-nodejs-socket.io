@@ -30,6 +30,7 @@ serverSocket.on("connection", function (socket) {
   socket.on("chat msg", function (msg) {
     // função que é executada quando o servidor recebe uma mensagem do cliente (quando o usuário envia uma mensagem)
     console.log(`Mensagem recebida ${socket.nickname}: ${msg}`); // mostrando no console a mensagem recebida e o id do usuário que enviou a mensagem
+    socket.emit("chat msg", `Você: ${msg}`); // enviando a mensagem recebida para o cliente que enviou a mensagem
     socket.broadcast.emit("chat msg", `${socket.nickname}: ${msg}`); // enviando a mensagem recebida para todos os clientes(menos eu) conectados ao servidor socket
   });
 
